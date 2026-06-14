@@ -4,6 +4,8 @@ A full-stack, AI-native marketing and customer engagement CRM built for Direct-t
 
 This project was built to satisfy the **Xeno Forward Deployment Engineer (FDE) Take-Home Assignment**.
 
+![System Architecture Flowchart](public/system_architecture_flow.png)
+
 ---
 
 ## 🚀 Key Features
