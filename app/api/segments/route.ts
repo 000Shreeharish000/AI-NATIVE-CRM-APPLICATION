@@ -8,6 +8,44 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
 })
 
+function castFilters(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj
+
+  const numericFields = ['totalSpent', 'totalOrders']
+  const result: any = Array.isArray(obj) ? [] : {}
+
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const val = obj[key]
+      if (numericFields.includes(key)) {
+        if (typeof val === 'object' && val !== null) {
+          const operatorObj: any = {}
+          for (const op in val) {
+            if (Object.prototype.hasOwnProperty.call(val, op)) {
+              const opVal = val[op]
+              if (typeof opVal === 'string' && !isNaN(Number(opVal))) {
+                operatorObj[op] = Number(opVal)
+              } else {
+                operatorObj[op] = opVal
+              }
+            }
+          }
+          result[key] = operatorObj
+        } else if (typeof val === 'string' && !isNaN(Number(val))) {
+          result[key] = Number(val)
+        } else {
+          result[key] = val
+        }
+      } else if (typeof val === 'object' && val !== null) {
+        result[key] = castFilters(val)
+      } else {
+        result[key] = val
+      }
+    }
+  }
+  return result
+}
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB()
@@ -91,6 +129,9 @@ export async function POST(req: NextRequest) {
     if (!finalName) {
       return NextResponse.json({ error: 'Segment name required' }, { status: 400 })
     }
+
+    // Cast string-based numeric query operators to actual numbers
+    finalFilters = castFilters(finalFilters)
 
     const segment = await Segment.create({
       userId,

@@ -2,10 +2,10 @@ import { connectDB } from '@/lib/mongodb'
 import { Campaign } from '@/lib/models'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB()
-    const { id } = params
+    const { id } = await params
 
     const result = await Campaign.findByIdAndDelete(id)
     if (!result) {
@@ -19,10 +19,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB()
-    const { id } = params
+    const { id } = await params
 
     const campaign = await Campaign.findById(id)
     if (!campaign) {
