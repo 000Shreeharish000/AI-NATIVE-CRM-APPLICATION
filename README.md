@@ -87,10 +87,10 @@ Create a `.env.local` file in the root directory and add the following keys:
 
 ```env
 # MongoDB Connection String
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/xeno-crm?retryWrites=true&w=majority
+MONGODB_URI=Your string
 
 # Gemini API Key (Required for trend listening, drafting, and chat)
-GEMINI_API_KEY=AIzaSy...
+GEMINI_API_KEY=Yopur Key
 
 # Public Application URL (required for local webhook callbacks)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
