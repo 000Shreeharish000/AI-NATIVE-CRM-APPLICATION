@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       userId,
       role: 'assistant',
       content: response.text,
-      campaignContext: campaignId,
+      campaignContext: campaignId || null,
     })
 
     // Save user message
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       userId,
       role: 'user',
       content: lastMessage.content,
-      campaignContext: campaignId,
+      campaignContext: campaignId || null,
     })
 
     return NextResponse.json({
