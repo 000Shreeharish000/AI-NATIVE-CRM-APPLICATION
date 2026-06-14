@@ -1,268 +1,129 @@
-# AI Marketing Copilot
+# XENO CRM: AI-Native Mini CRM for Reaching Shoppers
 
-A full-stack marketing automation platform powered by AI, built with Next.js 16, MongoDB, and the AI SDK.
+A full-stack, AI-native marketing and customer engagement CRM built for Direct-to-Consumer (D2C) brands. This application organizes shopper data, listens to social trends, automates campaign creation, and routes personalized communications through an asynchronous, webhook-driven channel delivery simulator.
 
-## Features
+This project was built to satisfy the **Xeno Forward Deployment Engineer (FDE) Take-Home Assignment**.
 
-- **Sharp-Edge UI Design** - Modern, clean interface with dark/light theme support
-- **Campaign Management** - Create, manage, and optimize marketing campaigns
-- **AI-Powered Chat Assistant** - Get AI recommendations for campaign optimization
-- **Analytics Dashboard** - Real-time performance metrics and insights
-- **MongoDB Integration** - Persistent data storage with Mongoose ORM
-- **Theme System** - Seamless dark/light mode switching
-- **Authentication** - User registration and login system
+---
 
-## Tech Stack
+## 🚀 Key Features
 
-- **Frontend**: Next.js 16, React 19, Tailwind CSS v4
-- **Backend**: Next.js API Routes, Node.js
-- **Database**: MongoDB with Mongoose ORM
-- **AI**: AI SDK with OpenAI (GPT-3.5 Turbo)
-- **Authentication**: Custom JWT-based auth system
-- **Styling**: Sharp-edge UI with minimal border radius
+* **Omnichannel Callback-Driven Loop (Core Specification)**:
+  * Exposes a CRM dispatch engine (`/api/campaigns/send`) that targets user segments.
+  * Routes campaigns to a stubbed, external **Channel Service** (`/api/mock-channel/send`).
+  * Simulates delivery lifecycle asynchronously: `Delivered` ➔ `Read` ➔ `Clicked` ➔ `Ordered`.
+  * Reports updates back to the CRM's receipt webhook endpoint (`/api/callbacks/receipt`).
+* **Visual Shopper Simulator & Live Log Terminal**:
+  * An interactive visual phone workspace to view messages arriving in real-time.
+  * Supports manual developer overrides to trigger delivery, read, click, and purchase events.
+  * Real-time scrolling webhook event log feed.
+* **AI Social Trend Scanner**:
+  * Listens to spikes in social media mentions (Instagram, TikTok, Pinterest) using **Gemini 2.5 Flash**.
+  * Recommends campaign strategies and provides one-click campaign launching with prefilled parameters and AI prompts.
+* **CSV Shopper Ingest Tool**:
+  * Batch CSV importer that parses, validates (email regex/empty field checks), and stores customer records directly into MongoDB.
+* **Segment-Level Performance Analytics**:
+  * Dashboard analytics comparing total sent messages, CTR%, and attributed revenue across segments (VIPs, Coffee Lovers, Frequent Buyers, etc.).
+* **Dynamic Template Token Interpolation**:
+  * Interpolates user attributes like name (`{{name}}`) and last order date (`{{lastPurchaseDate}}`) in real-time before messaging.
 
-## Project Structure
+---
+
+## 🛠️ Technology Stack
+
+* **Frontend**: Next.js 16 (App Router), React 19, Lucide Icons
+* **Backend**: Next.js Route Handlers (Serverless API Functions)
+* **Database**: MongoDB Atlas with Mongoose ORM
+* **AI Model**: Google Gemini 2.5 Flash (via Vercel AI SDK)
+* **Styling**: Modern, premium dark/light mode system with Outfit typography and minimal sharp-edge design guidelines
+
+---
+
+## 📂 Codebase Directory
 
 ```
 ├── app/
 │   ├── api/
-│   │   ├── auth/
-│   │   │   ├── login/
-│   │   │   └── register/
-│   │   ├── campaigns/
-│   │   │   ├── [id]/
-│   │   │   └── route.ts
-│   │   └── ai/
-│   │       └── chat/
-│   ├── auth/
-│   │   ├── login/
-│   │   └── register/
-│   ├── dashboard/
-│   │   ├── campaigns/
 │   │   ├── ai/
-│   │   ├── settings/
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   ├── globals.css
-│   └── page.tsx
+│   │   │   ├── chat/             # AI marketing chat advisor
+│   │   │   └── generate-content/ # AI campaign copywriter
+│   │   ├── auth/                 # Authentication endpoints
+│   │   ├── callbacks/
+│   │   │   └── receipt/          # Webhook callback receiver
+│   │   ├── campaigns/            # Campaign drafts CRUD and dispatch
+│   │   ├── customers/            # Customer queries & batch CSV imports
+│   │   ├── mock-channel/         # Stubbed simulator service
+│   │   ├── seed/                 # Database sandbox seeder
+│   │   ├── segments/             # Segment filter query aggregators
+│   │   └── trends/               # Social trend analyzer route
+│   ├── dashboard/                # CRM Control Panel pages
+│   │   ├── ai/
+│   │   ├── campaigns/
+│   │   ├── customers/
+│   │   ├── simulator/            # Visual mock phone simulator
+│   │   └── trends/
+│   ├── globals.css               # Outfit typography & theme overrides
+│   └── page.tsx                  # Premium FDE-focused landing page
 ├── components/
-│   ├── theme-provider.tsx
 │   ├── theme-toggle.tsx
-│   └── ui/
-│       ├── sharp-button.tsx
-│       ├── sharp-input.tsx
-│       └── sharp-card.tsx
+│   └── ui/                       # Sharp-edge custom layout elements
 ├── lib/
-│   ├── mongodb.ts
-│   ├── models.ts
-│   └── utils.ts
-└── public/
+│   ├── models.ts                 # MongoDB Mongoose collection definitions
+│   └── mongodb.ts                # Cached database connection helper
 ```
 
-## Getting Started
+---
 
-### Prerequisites
+## ⚙️ Local Development Setup
 
-- Node.js 18+ and npm/pnpm
-- MongoDB (local or cloud instance)
-- OpenAI API key
+### 1. Prerequisites
+* **Node.js** v18+ 
+* **pnpm** (preferred) or **npm**
+* **MongoDB** (local server or Atlas connection string)
+* **Gemini API Key** (from Google AI Studio)
 
-### 1. Clone & Install
+### 2. Environment Configurations
+Create a `.env.local` file in the root directory and add the following keys:
 
+```env
+# MongoDB Connection String
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/xeno-crm?retryWrites=true&w=majority
+
+# Gemini API Key (Required for trend listening, drafting, and chat)
+GEMINI_API_KEY=AIzaSy...
+
+# Public Application URL (required for local webhook callbacks)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 3. Install Dependencies
 ```bash
-cd your-project
 pnpm install
 ```
 
-### 2. Environment Setup
-
-Copy `.env.example` to `.env.local` and update the values:
-
-```bash
-cp .env.example .env.local
-```
-
-Then edit `.env.local`:
-
-```env
-# MongoDB - Use local or MongoDB Atlas
-MONGODB_URI=mongodb://localhost:27017/marketing-copilot
-# OR for MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/marketing-copilot?retryWrites=true&w=majority
-
-# Get from https://platform.openai.com/api-keys
-OPENAI_API_KEY=sk_your_key_here
-
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NODE_ENV=development
-```
-
-### 3. MongoDB Setup
-
-**Option A: Local MongoDB**
-```bash
-# Start MongoDB server locally
-mongod
-```
-
-**Option B: MongoDB Atlas (Cloud)**
-1. Create account at mongodb.com/cloud/atlas
-2. Create a cluster
-3. Get connection string and add to `.env.local`
-
-### 4. Run Development Server
-
+### 4. Run the Development Server
 ```bash
 pnpm dev
 ```
+Open [http://localhost:3000](http://localhost:3000) to view your CRM.
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+---
 
-## API Endpoints
+## 🚀 Deploying to Vercel
 
-### Authentication
-- `POST /api/auth/register` - Create new account
-- `POST /api/auth/login` - User login
+1. Push your project files to your GitHub repository (verify `.env.local` is ignored in `.gitignore`).
+2. Log into [Vercel](https://vercel.com) and click **Add New Project**.
+3. Import your repository.
+4. Under **Environment Variables**, add:
+   * `MONGODB_URI`
+   * `GEMINI_API_KEY`
+   * `NEXT_PUBLIC_APP_URL` (Set this to your Vercel deployment URL)
+5. Click **Deploy**. Vercel will compile the React dashboard and mount the serverless API endpoints instantly.
 
-### Campaigns
-- `GET /api/campaigns?userId=...` - Get user campaigns
-- `POST /api/campaigns` - Create campaign
-- `GET /api/campaigns/[id]` - Get campaign details
-- `DELETE /api/campaigns/[id]` - Delete campaign
+---
 
-### AI Assistant
-- `POST /api/ai/chat` - Send message to AI assistant
+## 🛡️ Scalability & Reliability Highlights (Evaluator Reference)
 
-## Features Guide
-
-### 1. Landing Page
-- Overview of features and benefits
-- Call-to-action buttons for registration
-- Responsive design with theme toggle
-
-### 2. Authentication
-- Email/password registration
-- Login with validation
-- Session stored in localStorage
-- Protected dashboard routes
-
-### 3. Dashboard
-- Overview of campaign statistics
-- Recent campaigns table
-- Quick access to all features
-- User profile in sidebar
-
-### 4. Campaign Management
-- Create new campaigns
-- View all campaigns
-- Set campaign type (email, social, content, ads)
-- Set status (draft, active, paused)
-- Delete campaigns
-- View campaign performance metrics
-
-### 5. AI Assistant
-- Chat interface with AI
-- Campaign context selection
-- Real-time responses
-- Conversation history
-- Suggestions for optimization
-
-### 6. Settings
-- Profile management
-- Security settings
-- Notification preferences
-- Plan & billing information
-
-## Customization
-
-### Theme Customization
-
-Edit `app/globals.css` to modify colors:
-
-```css
-:root {
-  --background: oklch(1 0 0);        /* White in light mode */
-  --foreground: oklch(0.145 0 0);    /* Black text */
-  --primary: oklch(0.205 0 0);       /* Primary color */
-  --primary-foreground: oklch(0.985 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);    /* Dark background */
-  --foreground: oklch(0.985 0 0);    /* Light text */
-  --primary: oklch(0.922 0 0);       /* Light primary */
-}
-```
-
-### Sharp Edges
-
-The UI uses sharp corners by default. All border-radius values are set to 0 in the Tailwind theme. Only buttons and inputs have minimal rounding (2-4px).
-
-To adjust, modify in `globals.css`:
-
-```css
---radius-sm: 0;      /* Sharp edges */
---radius-md: 2px;    /* Minimal curve (optional) */
-```
-
-## Development Workflow
-
-1. **Create Components** in `components/ui/` for reusable pieces
-2. **Add API Routes** in `app/api/` for backend logic
-3. **Create Pages** in `app/` following Next.js file structure
-4. **Database Operations** use models from `lib/models.ts`
-5. **Theme Testing** use the theme toggle to check dark/light modes
-
-## Deployment
-
-### Deploy to Vercel
-
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
-
-```bash
-vercel
-```
-
-### Environment Variables for Vercel
-- `MONGODB_URI` - MongoDB connection string
-- `OPENAI_API_KEY` - OpenAI API key
-- `NEXT_PUBLIC_APP_URL` - Production URL
-
-## Troubleshooting
-
-### MongoDB Connection Issues
-- Ensure MongoDB is running locally
-- Check MongoDB Atlas IP whitelist (if using cloud)
-- Verify `MONGODB_URI` in `.env.local`
-
-### AI Assistant Not Working
-- Verify `OPENAI_API_KEY` is set
-- Check API key is valid and has credits
-- Review API rate limits
-
-### Theme Not Switching
-- Clear browser localStorage and cache
-- Check `suppressHydrationWarning` is in `<html>` tag
-- Verify next-themes is properly installed
-
-## Future Enhancements
-
-- Real-time analytics with charts
-- Campaign templates
-- A/B testing tools
-- Team collaboration features
-- Advanced analytics and reporting
-- Integration with marketing platforms
-- Scheduled campaign automation
-- Custom branding options
-
-## License
-
-MIT - Feel free to use this project commercially and modify as needed.
-
-## Support
-
-For issues and questions, refer to the documentation or create an issue in your repository.
+* **Concurrency Lock Prevention**: Webhook stats are updated using MongoDB's atomic `$inc` operator inside `/api/callbacks/receipt`, preventing race conditions and document write conflicts.
+* **Callback Idempotency**: Status updates verify the log history trace before execution to prevent counting duplicate read/click webhook posts.
+* **Decoupled Queue Architecture**: As documented in the accompanying system design sheet, production scaling routes messages through AWS SQS/RabbitMQ queues to process backpressure and manage retries with Exponential Backoff policies.
