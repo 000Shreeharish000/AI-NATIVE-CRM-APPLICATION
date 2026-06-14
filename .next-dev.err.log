@@ -1,0 +1,2 @@
+⚠ Turbopack's filesystem cache has been deleted because we previously detected an internal error in Turbopack. Builds or page loads may be slower as a result.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
