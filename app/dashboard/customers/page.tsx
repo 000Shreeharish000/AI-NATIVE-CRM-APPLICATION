@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/sharp-card'
 import { Input } from '@/components/ui/sharp-input'
 import { Button } from '@/components/ui/sharp-button'
-import { Search, Users, Sliders, Calendar, DollarSign, ShoppingBag } from 'lucide-react'
+import { Search, Users, Sliders, Calendar, DollarSign, ShoppingBag, Sparkles } from 'lucide-react'
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -18,6 +18,12 @@ export default function CustomersPage() {
   const [csvText, setCsvText] = useState('')
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState<any>(null)
+
+  // AI Segment Builder States
+  const [showAiSegment, setShowAiSegment] = useState(false)
+  const [aiSegmentPrompt, setAiSegmentPrompt] = useState('')
+  const [generatingSegment, setGeneratingSegment] = useState(false)
+  const [segmentResult, setSegmentResult] = useState<any>(null)
 
   useEffect(() => {
     fetchSegments()
@@ -141,6 +147,41 @@ export default function CustomersPage() {
     }
   }
 
+  const handleCreateAiSegment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!aiSegmentPrompt.trim()) return
+    setGeneratingSegment(true)
+    setSegmentResult(null)
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    if (!user.id) return
+
+    try {
+      const res = await fetch('/api/segments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          prompt: aiSegmentPrompt
+        })
+      })
+
+      const data = await res.json()
+      if (res.ok) {
+        setSegmentResult({ success: true, message: `Created segment: "${data.name}"` })
+        setAiSegmentPrompt('')
+        fetchSegments() // Refresh the segments list
+      } else {
+        alert('Error: ' + data.error)
+      }
+    } catch (error) {
+      console.error('Failed to create AI segment:', error)
+      alert('Failed to connect to segment generator API')
+    } finally {
+      setGeneratingSegment(false)
+    }
+  }
+
   // Filter local results by search query
   const filteredCustomers = customers.filter(c => 
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -160,10 +201,54 @@ export default function CustomersPage() {
             View, search, and segment your shopper database in real-time.
           </p>
         </div>
-        <Button onClick={() => setShowImport(!showImport)} variant="outline" className="text-xs">
-          {showImport ? 'Close Ingest' : 'Batch Ingest (CSV)'}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAiSegment(!showAiSegment)} variant={showAiSegment ? 'default' : 'outline'} className="text-xs flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+            <span>{showAiSegment ? 'Close AI Builder' : 'Create Segment (AI)'}</span>
+          </Button>
+          <Button onClick={() => setShowImport(!showImport)} variant="outline" className="text-xs">
+            {showImport ? 'Close Ingest' : 'Batch Ingest (CSV)'}
+          </Button>
+        </div>
       </div>
+
+      {showAiSegment && (
+        <Card className="border border-amber-500/25 bg-amber-500/5 dark:bg-amber-950/10">
+          <CardHeader className="border-b border-border">
+            <CardTitle className="text-sm flex items-center gap-1.5 text-amber-800 dark:text-amber-400">
+              <Sparkles className="w-4 h-4 text-indigo-500 animate-pulse" />
+              AI Segment Query Generator
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Type your targeting logic in plain English. Xeno AI will translate it into Mongoose MongoDB query filters and create the segment.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <form onSubmit={handleCreateAiSegment} className="space-y-4">
+              <textarea
+                className="w-full px-4 py-2 bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors text-sm"
+                placeholder="e.g. Customers who spent over $120 and ordered at least 3 items, or people with coffee-lover tag who haven't ordered in the last 30 days"
+                rows={3}
+                value={aiSegmentPrompt}
+                onChange={(e) => setAiSegmentPrompt(e.target.value)}
+                required
+                disabled={generatingSegment}
+              />
+              <div className="flex items-center justify-between">
+                <Button type="submit" disabled={generatingSegment || !aiSegmentPrompt.trim()} className="text-xs flex items-center gap-1 bg-amber-600 hover:bg-amber-500 border-amber-600">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{generatingSegment ? 'AI is generating query filters...' : 'Generate Segment with AI'}</span>
+                </Button>
+                {segmentResult && (
+                  <span className="text-xs text-green-500 font-semibold font-mono">
+                    ✓ {segmentResult.message}
+                  </span>
+                )}
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
 
       {showImport && (
         <Card className="border border-border">
