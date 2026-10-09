@@ -109,21 +109,6 @@ pnpm dev
 ```
 Open [http://localhost:3000](http://localhost:3000) to view your CRM.
 
----
-
-## 🚀 Deploying to Vercel
-
-1. Push your project files to your GitHub repository (verify `.env.local` is ignored in `.gitignore`).
-2. Log into [Vercel](https://vercel.com) and click **Add New Project**.
-3. Import your repository.
-4. Under **Environment Variables**, add:
-   * `MONGODB_URI`
-   * `GEMINI_API_KEY`
-   * `NEXT_PUBLIC_APP_URL` (Set this to your Vercel deployment URL)
-5. Click **Deploy**. Vercel will compile the React dashboard and mount the serverless API endpoints instantly.
-
----
-
 ## 🛡️ Scalability & Reliability Highlights (Evaluator Reference)
 
 * **Concurrency Lock Prevention**: Webhook stats are updated using MongoDB's atomic `$inc` operator inside `/api/callbacks/receipt`, preventing race conditions and document write conflicts.
